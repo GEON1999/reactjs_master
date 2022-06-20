@@ -64,16 +64,16 @@ const Img = styled.img`
 
 const ThemeChange = styled.button`
   background-color: transparent;
-  border: 3px solid ${(props) => props.theme.buttonColor};
+  border: 2px solid ${(props) => props.theme.buttonColor};
   border-radius: 30px;
   color: ${(props) => props.theme.buttonColor};
   padding: 10px 10px;
-  margin-left: 350px;
+  margin-left: 300px;
   position: absolute;
   transition: 0.4s ease-in-out;
 
   &:hover {
-    padding: 8px 25px;
+    padding: 8px 20px;
     font-size: large;
     background-color: ${(props) => props.theme.accentColor};
     border-color: ${(props) => props.theme.accentColor};
