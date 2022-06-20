@@ -32,7 +32,7 @@ const Title = styled.h1`
 
 const Coin = styled.li`
   font-weight: 500;
-  background-color: #1a2541;
+  background-color: ${(props) => props.theme.coinBg};
   color: ${(props) => props.theme.bgColor};
   border-radius: 15px;
   margin: 5px 10px;

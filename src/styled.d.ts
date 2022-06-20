@@ -8,5 +8,6 @@ declare module "styled-components" {
     accentColor: string;
     tapColor: string;
     buttonColor: string;
+    coinBg: string;
   }
 }

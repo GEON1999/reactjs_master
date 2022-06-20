@@ -6,6 +6,7 @@ export const darkTheme: DefaultTheme = {
   accentColor: "#F0B90B",
   tapColor: "#181a20",
   buttonColor: "#707A8A",
+  coinBg: "#1a2541",
 };
 
 export const lightTheme: DefaultTheme = {
@@ -14,4 +15,5 @@ export const lightTheme: DefaultTheme = {
   accentColor: "#F0B90B",
   tapColor: "#F0F1F2",
   buttonColor: "#707A8A",
+  coinBg: "#F0F1F2",
 };
