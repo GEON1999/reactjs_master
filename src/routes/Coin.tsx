@@ -6,15 +6,17 @@ import {
   useMatch,
 } from "react-router-dom";
 import styled from "styled-components";
-import { useEffect, useState } from "react";
 import Price from "./Price";
 import Chart from "./Chart";
 import { Link } from "react-router-dom";
+import { useQuery } from "react-query";
+import { fetchCoinInfo, fetchCoinTikers } from "../api";
+import { Helmet } from "react-helmet";
 
 const Overview = styled.div`
   display: flex;
   justify-content: space-between;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: #181a20;
   padding: 10px 20px;
   border-radius: 10px;
 `;
@@ -104,9 +106,11 @@ const Header = styled.header`
   align-items: center;
 `;
 const Title = styled.h1`
-  font-size: 48px;
-  color: ${(props) => props.theme.accentColor};
+  font-weight: 800;
+  font-size: 35px;
+  color: ${(props) => props.theme.textColor};
 `;
+
 const Loader = styled.span`
   text-align: center;
   display: block;
@@ -124,7 +128,7 @@ const Tab = styled.span<{ isActive: boolean }>`
   text-transform: uppercase;
   font-size: 12px;
   font-weight: 400;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: #181a20;
   padding: 7px 0px;
   border-radius: 10px;
   color: ${(props) =>
@@ -134,36 +138,64 @@ const Tab = styled.span<{ isActive: boolean }>`
   }
 `;
 
-interface Route {
+const Home = styled.div`
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  span {
+    font-weight: 800;
+    color: ${(props) => props.theme.accentColor};
+    font-size: 18px;
+  }
+  img {
+    width: 18px;
+    height: 18px;
+    margin-right: 5px;
+    display: inline;
+  }
+`;
+
+interface Iroute {
   state: string;
 }
 
 function Coin() {
   const { coinId } = useParams() as unknown as RouteParams;
-  const [loading, setLoading] = useState(true);
-  const { state } = useLocation() as Route;
-  const [info, setInfo] = useState<InfoData>();
-  const [priceInfo, setPriceInfo] = useState<PriceData>();
+  const { state } = useLocation() as Iroute;
   const priceMatch = useMatch("/:coinId/price");
   const chartMatch = useMatch("/:coinId/chart");
-  useEffect(() => {
-    (async () => {
-      const infoData = await (
-        await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)
-      ).json();
-      const priceData = await (
-        await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
-      ).json();
-      setInfo(infoData);
-      setPriceInfo(priceData);
-      setLoading(false);
-    })();
-  }, [coinId]);
-
+  const { isLoading: infoLoading, data: infoData } = useQuery<InfoData>(
+    ["info", coinId],
+    () => fetchCoinInfo(coinId)
+  );
+  const { isLoading: tickersLoading, data: tickerData } = useQuery<PriceData>(
+    ["tickers", coinId],
+    () => fetchCoinTikers(coinId),
+    {
+      refetchInterval: 1000,
+    }
+  );
+  // inside of our url, we need {coinId} so, we can get the coinId like this
+  // key value is inside of array so, we can identify like this  ["info", coinId] & ["tickers", coinId]
+  const loading = infoLoading || tickersLoading;
   return (
     <Container>
+      <Helmet>
+        <title>{state ? state : loading ? "Loading..." : infoData?.name}</title>
+      </Helmet>
+      <Home>
+        <Link to={"/"}>
+          {" "}
+          <img src="data:image/png;base64,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" />
+          <span>BINANCE</span>
+        </Link>
+      </Home>
       <Header>
-        <Title>{state ? state : loading ? "Loading..." : info?.name}</Title>
+        <Title>
+          <Link to={`/${coinId}`}>
+            {state ? state : loading ? "Loading..." : infoData?.name}
+          </Link>
+        </Title>
       </Header>
       {loading ? (
         <Loader>Loading...</Loader>
@@ -172,26 +204,26 @@ function Coin() {
           <Overview>
             <OverviewItem>
               <span>Rank:</span>
-              <span>{info?.rank}</span>
+              <span>{infoData?.rank}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Symbol:</span>
-              <span>${info?.symbol}</span>
+              <span>${infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
-              <span>Open Source:</span>
-              <span>{info?.open_source ? "Yes" : "No"}</span>
+              <span>Price:</span>
+              <span>{tickerData?.quotes.USD.price.toFixed(3)}</span>
             </OverviewItem>
           </Overview>
-          <Description>{info?.description}</Description>
+          <Description>{infoData?.description}</Description>
           <Overview>
             <OverviewItem>
               <span>Total Suply:</span>
-              <span>{priceInfo?.total_supply}</span>
+              <span>{tickerData?.total_supply}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Max Supply:</span>
-              <span>{priceInfo?.max_supply}</span>
+              <span>{tickerData?.max_supply}</span>
             </OverviewItem>
           </Overview>
           <Tabs>
@@ -203,8 +235,8 @@ function Coin() {
             </Tab>
           </Tabs>
           <Routes>
-            <Route path="price" element={<Price />} />
-            <Route path="chart" element={<Chart />} />
+            <Route path="price" element={<Price coinId={coinId} />} />
+            <Route path="chart" element={<Chart coinId={coinId} />} />
           </Routes>
         </>
       )}

@@ -1,5 +1,6 @@
 import Router from "./Router";
 import { createGlobalStyle } from "styled-components";
+import { ReactQueryDevtools } from "react-query/devtools";
 
 const GlobalStyle = createGlobalStyle`
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
@@ -68,8 +69,10 @@ function App() {
     <>
       <GlobalStyle />
       <Router />
+      <ReactQueryDevtools initialIsOpen={true} />
     </>
   );
 }
+// <ReactQueryDevtools initialIsOpen={true} /> exist for  <GlobalStyle />&<Router /> not to load api every time and also provide devtools
 
 export default App;
