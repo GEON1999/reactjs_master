@@ -1,6 +1,8 @@
 import { useQuery } from "react-query";
 import { fetchCoinHistory } from "../api";
 import ApexChart from "react-apexcharts";
+import { isDarkAtom } from "../atoms";
+import { useRecoilValue } from "recoil";
 
 interface ChartProps {
   coinId: string;
@@ -24,10 +26,10 @@ function Chart({ coinId }: ChartProps) {
   );
 
   const priceOhlcData = data?.map((ohlc) => ({
-    x: ohlc.time_open,
+    x: Number(ohlc.time_open) * 1000,
     y: [ohlc.open, ohlc.high, ohlc.low, ohlc.close],
   }));
-
+  const isDark = useRecoilValue(isDarkAtom);
   return (
     <div>
       {isLoading ? (
@@ -62,7 +64,7 @@ function Chart({ coinId }: ChartProps) {
             },
 
             theme: {
-              mode: `dark`,
+              mode: isDark ? "dark" : "dark",
             },
             chart: {
               toolbar: {
